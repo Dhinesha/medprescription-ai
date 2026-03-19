@@ -14,7 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      hospital_templates: {
+        Row: {
+          address: string | null
+          created_at: string
+          department: string | null
+          doctor_name: string
+          hospital_name: string
+          id: string
+          logo_url: string | null
+          phone: string | null
+          registration_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          department?: string | null
+          doctor_name: string
+          hospital_name: string
+          id?: string
+          logo_url?: string | null
+          phone?: string | null
+          registration_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          department?: string | null
+          doctor_name?: string
+          hospital_name?: string
+          id?: string
+          logo_url?: string | null
+          phone?: string | null
+          registration_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      prescriptions: {
+        Row: {
+          age: string | null
+          created_at: string
+          gender: string | null
+          id: string
+          notes: string | null
+          patient_name: string
+          prescription_text: string | null
+          raw_transcript: string | null
+          template_id: string | null
+          updated_at: string
+          visit_date: string
+        }
+        Insert: {
+          age?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          notes?: string | null
+          patient_name: string
+          prescription_text?: string | null
+          raw_transcript?: string | null
+          template_id?: string | null
+          updated_at?: string
+          visit_date?: string
+        }
+        Update: {
+          age?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          notes?: string | null
+          patient_name?: string
+          prescription_text?: string | null
+          raw_transcript?: string | null
+          template_id?: string | null
+          updated_at?: string
+          visit_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prescriptions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "hospital_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
