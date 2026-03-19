@@ -37,7 +37,8 @@ export default function PrescriptionTable({ rows, showTracker = false }: Prescri
     </div>
   );
 
-  const parseDuration = (dur: string): number => {
+  const parseDuration = (dur: string | null | undefined): number => {
+    if (!dur) return 5;
     const match = dur.match(/(\d+)/);
     return match ? parseInt(match[1]) : 5;
   };
