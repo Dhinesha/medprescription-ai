@@ -154,7 +154,7 @@ export default function PrescriptionScanner() {
               <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Pill className="w-5 h-5 text-primary" /> Extracted Medicines
               </h3>
-              <PrescriptionTable rows={parsedRows} />
+              <PrescriptionTable rows={parsedRows} showTracker={true} />
             </div>
 
             {/* Food suggestions */}
