@@ -135,6 +135,16 @@ Respond ONLY in this JSON format:
     if (!response.ok) {
       const err = await response.text();
       console.error("AI API error:", err);
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limited. Please wait a moment and try again." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       throw new Error(`AI API error: ${response.status}`);
     }
 
