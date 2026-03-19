@@ -1,6 +1,8 @@
-import { Menu, X, ScanLine, Bot, FileText, ClipboardList, History } from "lucide-react";
+import { Menu, X, ScanLine, Bot, FileText, ClipboardList, History, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import logoImg from "@/assets/medtemplate-logo.png";
 
 interface HeaderProps {
@@ -18,6 +20,15 @@ const tabs = [
 
 export default function Header({ activeTab, onTabChange }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
+  const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Doctor";
 
   return (
     <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
@@ -49,6 +60,23 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                 </button>
               );
             })}
+
+            {/* User menu */}
+            <div className="ml-2 pl-2 border-l border-border flex items-center gap-2">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <span className="hidden lg:inline max-w-[100px] truncate">{displayName}</span>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                title="Sign out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
           </nav>
 
           <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 rounded-lg hover:bg-muted">
@@ -83,6 +111,21 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                   </button>
                 );
               })}
+
+              {/* Mobile user info + sign out */}
+              <div className="pt-2 mt-2 border-t border-border">
+                <div className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground">
+                  <User className="w-4 h-4" />
+                  <span className="truncate">{displayName}</span>
+                </div>
+                <button
+                  onClick={() => { handleSignOut(); setMobileOpen(false); }}
+                  className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
