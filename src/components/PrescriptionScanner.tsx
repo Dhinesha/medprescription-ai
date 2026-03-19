@@ -118,17 +118,16 @@ export default function PrescriptionScanner() {
     setAnalyzing(true);
     try {
       const base64 = imagePreview.split(",")[1];
-      const isPdf = imagePreview.startsWith("data:application/pdf");
 
       const { data, error } = await supabase.functions.invoke("med-assistant", {
         body: {
           image_base64: base64,
           type: "scan_prescription",
-          is_pdf: isPdf,
         },
       });
       if (error) throw error;
       const content = data.result;
+      if (!content) throw new Error("No result from analysis");
       const jsonMatch = content.match(/```json\s*([\s\S]*?)```/) || content.match(/\{[\s\S]*\}/);
       const parsed = JSON.parse(jsonMatch?.[1] || jsonMatch?.[0] || content);
       setResult(parsed);
