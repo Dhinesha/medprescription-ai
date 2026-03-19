@@ -136,14 +136,9 @@ export default function PreviewStep({ template, patient, prescriptionText, onPre
           <span className="text-2xl font-bold text-primary">℞</span>
         </div>
 
-        {/* Prescription content - editable */}
-        <div className="space-y-2 mb-8">
-          {rxLines.map((line, i) => (
-            <div key={i} className="flex items-start gap-3 text-sm">
-              <span className="text-muted-foreground font-mono text-xs mt-0.5">{i + 1}.</span>
-              <p className="text-foreground leading-relaxed">{line}</p>
-            </div>
-          ))}
+        {/* Prescription table */}
+        <div className="mb-8">
+          <PrescriptionTable rows={parsedRows} />
         </div>
 
         {/* Editable raw text - no-print */}
