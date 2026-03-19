@@ -8,9 +8,9 @@ interface HeaderProps {
 }
 
 const tabs = [
-  { id: "dashboard", label: "Dashboard" },
+  { id: "workflow", label: "New Prescription" },
   { id: "templates", label: "Templates" },
-  { id: "records", label: "Records" },
+  { id: "history", label: "History" },
 ];
 
 export default function Header({ activeTab, onTabChange }: HeaderProps) {
@@ -25,12 +25,11 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
               <Stethoscope className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground leading-tight">MedVoice AI</h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">Doctor Voice Report Generator</p>
+              <h1 className="text-lg font-bold text-foreground leading-tight">MedTemplate</h1>
+              <p className="text-xs text-muted-foreground hidden sm:block">Voice Prescription System</p>
             </div>
           </div>
 
-          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
             {tabs.map(tab => (
               <button
@@ -47,14 +46,12 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
             ))}
           </nav>
 
-          {/* Mobile menu button */}
           <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 rounded-lg hover:bg-muted">
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile nav */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div

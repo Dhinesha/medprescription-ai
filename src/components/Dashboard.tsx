@@ -1,177 +1,140 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Mic, FileText, Sparkles, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
-import VoiceRecorder from "@/components/VoiceRecorder";
-import ReportForm from "@/components/ReportForm";
-import ReportPreview from "@/components/ReportPreview";
-import AIFormatButton from "@/components/AIFormatButton";
-import TemplateManager from "@/components/TemplateManager";
-import PatientRecords from "@/components/PatientRecords";
-import { useAppStore } from "@/stores/useAppStore";
-import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
-import { parseTranscript } from "@/lib/parseTranscript";
-import type { MedicalReport } from "@/types/medical";
-
-const statCards = [
-  { label: "Voice Input", desc: "Speak patient details", icon: Mic, color: "bg-medical-blue-light text-medical-blue" },
-  { label: "AI Formatting", desc: "Auto-structure reports", icon: Sparkles, color: "bg-medical-teal-light text-medical-teal" },
-  { label: "PDF Export", desc: "Download & print", icon: FileText, color: "bg-medical-green-light text-medical-green" },
-  { label: "Records", desc: "Search & manage", icon: ClipboardList, color: "bg-muted text-medical-purple" },
-];
+import StepIndicator from "@/components/StepIndicator";
+import TemplateStep from "@/components/TemplateStep";
+import PatientStep from "@/components/PatientStep";
+import VoiceStep from "@/components/VoiceStep";
+import PreviewStep from "@/components/PreviewStep";
+import HistoryView from "@/components/HistoryView";
+import { fetchTemplates, fetchPrescriptions } from "@/lib/api";
+import type { HospitalTemplate, PatientInfo, WorkflowStep } from "@/types/medical";
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [language, setLanguage] = useState("en-US");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [report, setReport] = useState<Partial<MedicalReport>>({});
+  const [activeTab, setActiveTab] = useState("workflow");
+  const [step, setStep] = useState<WorkflowStep>("template");
+  const [completedSteps, setCompletedSteps] = useState<WorkflowStep[]>([]);
 
-  const store = useAppStore();
+  // Data
+  const [templates, setTemplates] = useState<HospitalTemplate[]>([]);
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<HospitalTemplate | null>(null);
+  const [patient, setPatient] = useState<PatientInfo>({
+    patientName: "",
+    age: "",
+    gender: "",
+    visitDate: new Date().toISOString().split("T")[0],
+  });
+  const [prescriptionText, setPrescriptionText] = useState("");
 
-  const { isListening, transcript, interimTranscript, isSupported, startListening, stopListening, resetTranscript, setManualTranscript } = useSpeechRecognition({ language });
-
-  const handleFieldChange = useCallback((field: keyof MedicalReport, value: string) => {
-    setReport(prev => ({ ...prev, [field]: value }));
+  const loadTemplates = useCallback(async () => {
+    try {
+      const data = await fetchTemplates();
+      setTemplates(data);
+    } catch (err: any) {
+      toast.error("Failed to load templates");
+    }
   }, []);
 
-  const handleAIFormat = useCallback(() => {
-    if (!transcript.trim()) return;
-    setIsProcessing(true);
-    // Client-side parsing as fallback (AI backend can be added later)
-    setTimeout(() => {
-      const parsed = parseTranscript(transcript);
-      setReport(prev => ({
-        ...prev,
-        ...Object.fromEntries(Object.entries(parsed).filter(([_, v]) => v)),
-        rawTranscript: transcript,
-      }));
-      setIsProcessing(false);
-      toast.success("Report generated from voice input!");
-    }, 1000);
-  }, [transcript]);
-
-  const handleSaveReport = useCallback(() => {
-    const fullReport: MedicalReport = {
-      id: crypto.randomUUID(),
-      patientName: report.patientName || "",
-      age: report.age || "",
-      gender: report.gender || "",
-      chiefComplaint: report.chiefComplaint || "",
-      symptoms: report.symptoms || "",
-      diagnosis: report.diagnosis || "",
-      prescription: report.prescription || "",
-      doctorAdvice: report.doctorAdvice || "",
-      followUpDate: report.followUpDate || "",
-      rawTranscript: report.rawTranscript || transcript,
-      createdAt: new Date().toISOString(),
-      templateId: store.activeTemplate?.id,
-    };
-    store.saveReport(fullReport);
-    toast.success("Report saved successfully!");
-  }, [report, transcript, store]);
-
-  const handleSelectRecord = useCallback((r: MedicalReport) => {
-    setReport(r);
-    setActiveTab("dashboard");
-    toast.info(`Loaded report for ${r.patientName}`);
+  const loadPrescriptions = useCallback(async () => {
+    try {
+      const data = await fetchPrescriptions();
+      setPrescriptions(data);
+    } catch (err: any) {
+      toast.error("Failed to load prescriptions");
+    }
   }, []);
 
-  const handleNewReport = useCallback(() => {
-    setReport({});
-    resetTranscript();
-  }, [resetTranscript]);
+  useEffect(() => {
+    loadTemplates();
+    loadPrescriptions();
+  }, [loadTemplates, loadPrescriptions]);
+
+  const goToStep = (newStep: WorkflowStep) => {
+    setStep(newStep);
+  };
+
+  const completeStep = (currentStep: WorkflowStep, nextStep: WorkflowStep) => {
+    if (!completedSteps.includes(currentStep)) {
+      setCompletedSteps(prev => [...prev, currentStep]);
+    }
+    setStep(nextStep);
+  };
+
+  const handleReset = () => {
+    setStep("template");
+    setCompletedSteps([]);
+    setPatient({ patientName: "", age: "", gender: "", visitDate: new Date().toISOString().split("T")[0] });
+    setPrescriptionText("");
+    loadPrescriptions();
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Header activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {activeTab === "dashboard" && (
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+        {activeTab === "workflow" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            {/* Quick stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {statCards.map((s, i) => (
-                <motion.div
-                  key={s.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-card rounded-2xl card-shadow p-5"
-                >
-                  <div className={`w-10 h-10 rounded-xl ${s.color} flex items-center justify-center mb-3`}>
-                    <s.icon className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-semibold text-foreground text-sm">{s.label}</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">{s.desc}</p>
-                </motion.div>
-              ))}
-            </div>
+            <StepIndicator currentStep={step} completedSteps={completedSteps} />
 
-            {/* New report button */}
-            {(report.patientName || transcript) && (
-              <button
-                onClick={handleNewReport}
-                className="text-sm text-primary font-medium hover:underline"
-              >
-                + Start New Report
-              </button>
+            {step === "template" && (
+              <TemplateStep
+                templates={templates}
+                selectedTemplate={selectedTemplate}
+                onSelect={setSelectedTemplate}
+                onRefresh={loadTemplates}
+                onNext={() => completeStep("template", "patient")}
+              />
             )}
 
-            <div className="grid lg:grid-cols-2 gap-6">
-              {/* Left column: Voice + AI */}
-              <div className="space-y-4">
-                <VoiceRecorder
-                  isListening={isListening}
-                  transcript={transcript}
-                  interimTranscript={interimTranscript}
-                  language={language}
-                  isSupported={isSupported}
-                  onStart={startListening}
-                  onStop={stopListening}
-                  onReset={resetTranscript}
-                  onLanguageChange={setLanguage}
-                  onManualTranscript={setManualTranscript}
-                />
-                <AIFormatButton
-                  transcript={transcript}
-                  isProcessing={isProcessing}
-                  onFormat={handleAIFormat}
-                />
-                <ReportForm report={report} onChange={handleFieldChange} />
-              </div>
+            {step === "patient" && (
+              <PatientStep
+                patient={patient}
+                onChange={setPatient}
+                onNext={() => completeStep("patient", "voice")}
+                onBack={() => goToStep("template")}
+              />
+            )}
 
-              {/* Right column: Preview */}
-              <div className="lg:sticky lg:top-24 lg:self-start">
-                <ReportPreview
-                  report={report}
-                  template={store.activeTemplate}
-                  onSave={handleSaveReport}
-                />
-              </div>
-            </div>
+            {step === "voice" && (
+              <VoiceStep
+                prescriptionText={prescriptionText}
+                onPrescriptionChange={setPrescriptionText}
+                onNext={() => completeStep("voice", "preview")}
+                onBack={() => goToStep("patient")}
+              />
+            )}
+
+            {step === "preview" && selectedTemplate && (
+              <PreviewStep
+                template={selectedTemplate}
+                patient={patient}
+                prescriptionText={prescriptionText}
+                onPrescriptionChange={setPrescriptionText}
+                onBack={() => goToStep("voice")}
+                onReset={handleReset}
+              />
+            )}
           </motion.div>
         )}
 
         {activeTab === "templates" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <TemplateManager
-              templates={store.templates}
-              activeTemplate={store.activeTemplate}
-              onSave={store.saveTemplate}
-              onDelete={store.deleteTemplate}
-              onSelect={store.setActiveTemplate}
+            <TemplateStep
+              templates={templates}
+              selectedTemplate={selectedTemplate}
+              onSelect={setSelectedTemplate}
+              onRefresh={loadTemplates}
+              onNext={() => { setActiveTab("workflow"); completeStep("template", "patient"); }}
             />
           </motion.div>
         )}
 
-        {activeTab === "records" && (
+        {activeTab === "history" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <PatientRecords
-              reports={store.reports}
-              onDelete={store.deleteReport}
-              onSelect={handleSelectRecord}
-            />
+            <HistoryView prescriptions={prescriptions} onRefresh={loadPrescriptions} />
           </motion.div>
         )}
       </main>
