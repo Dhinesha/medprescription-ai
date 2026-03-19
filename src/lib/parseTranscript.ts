@@ -13,8 +13,8 @@ export function parseTranscript(text: string): Partial<MedicalReport> {
   if (nameMatch) report.patientName = nameMatch[1].trim();
 
   // Age
-  const ageMatch = text.match(/(\d{1,3})\s*(?:years?\s*old|year|yrs?)/i);
-  if (ageMatch) report.age = ageMatch[1];
+  const ageMatch = text.match(/(?:age(?:d)?[\s:]+(\d{1,3})|(\d{1,3})\s*(?:years?\s*old|year|yrs?))/i);
+  if (ageMatch) report.age = (ageMatch[1] || ageMatch[2]);
 
   // Gender
   if (lower.includes("female") || lower.includes("woman") || lower.includes("girl")) {
