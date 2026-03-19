@@ -73,8 +73,9 @@ export default function PreviewStep({ template, patient, prescriptionText, onPre
     }
   };
 
-  // Parse prescription lines for display
+  // Parse prescription lines into structured table
   const rxLines = prescriptionText.split(/[.\n]/).map(s => s.trim()).filter(Boolean);
+  const parsedRows = parsePrescriptionLines(prescriptionText);
 
   return (
     <div className="space-y-6">
