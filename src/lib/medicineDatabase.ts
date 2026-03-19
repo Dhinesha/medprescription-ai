@@ -5,7 +5,29 @@ export interface Medicine {
   strengths: string[];
   frequencies: string[];
   instructions: string[];
+  timing?: string[]; // morning, evening, night, before/after dinner etc.
 }
+
+// Timing options available for all medicines
+export const timingOptions = [
+  "Morning",
+  "Afternoon",
+  "Evening",
+  "Night",
+  "Morning & Night",
+  "Morning, Afternoon & Night",
+  "Before food",
+  "After food",
+  "Before breakfast",
+  "After breakfast",
+  "Before lunch",
+  "After lunch",
+  "Before dinner",
+  "After dinner",
+  "Empty stomach",
+  "At bedtime",
+  "SOS (as needed)",
+];
 
 export const medicineDatabase: Medicine[] = [
   // Analgesics / Antipyretics
@@ -105,10 +127,11 @@ export function searchMedicines(query: string): Medicine[] {
     .slice(0, 8);
 }
 
-export function formatMedicineLine(med: Medicine, strengthIdx = 0, freqIdx = 0, instrIdx = 0): string {
+export function formatMedicineLine(med: Medicine, strengthIdx = 0, freqIdx = 0, instrIdx = 0, timing?: string): string {
   const parts = [`${med.form} ${med.name}`];
   if (med.strengths[strengthIdx]) parts.push(med.strengths[strengthIdx]);
   parts.push(med.frequencies[freqIdx]);
   if (med.instructions[instrIdx]) parts.push(med.instructions[instrIdx]);
+  if (timing) parts.push(`— ${timing}`);
   return parts.join(" ");
 }
