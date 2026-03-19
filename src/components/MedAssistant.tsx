@@ -38,9 +38,8 @@ export default function MedAssistant() {
       return;
     }
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = "en-US";
+    recognition.lang = voiceLang;
+
 
     recognition.onresult = (event: any) => {
       let final = "";
