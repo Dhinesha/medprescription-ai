@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import MedicineSuggestions from "@/components/MedicineSuggestions";
 
 interface VoiceStepProps {
   prescriptionText: string;
@@ -105,6 +106,18 @@ export default function VoiceStep({ prescriptionText, onPrescriptionChange, onNe
               </Button>
             </div>
           )}
+
+          {/* Medicine quick-search */}
+          <div className="w-full">
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">Quick-add medicine:</p>
+            <MedicineSuggestions
+              onInsert={(line) => {
+                const prev = (prescriptionText || transcript).trim();
+                const next = prev ? `${prev}\n${line}` : line;
+                onPrescriptionChange(next);
+              }}
+            />
+          </div>
 
           {/* Transcript / prescription display */}
           {(transcript || interimTranscript || prescriptionText) && (
