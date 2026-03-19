@@ -1,25 +1,15 @@
-export interface HospitalTemplate {
-  id: string;
-  hospitalName: string;
-  address: string;
-  phone: string;
-  doctorName: string;
-  department: string;
-  registrationNumber: string;
-}
+import { Database } from "@/integrations/supabase/types";
 
-export interface MedicalReport {
-  id: string;
+export type HospitalTemplate = Database["public"]["Tables"]["hospital_templates"]["Row"];
+export type HospitalTemplateInsert = Database["public"]["Tables"]["hospital_templates"]["Insert"];
+export type Prescription = Database["public"]["Tables"]["prescriptions"]["Row"];
+export type PrescriptionInsert = Database["public"]["Tables"]["prescriptions"]["Insert"];
+
+export type WorkflowStep = "template" | "patient" | "voice" | "preview";
+
+export interface PatientInfo {
   patientName: string;
   age: string;
   gender: string;
-  chiefComplaint: string;
-  symptoms: string;
-  diagnosis: string;
-  prescription: string;
-  doctorAdvice: string;
-  followUpDate: string;
-  rawTranscript: string;
-  createdAt: string;
-  templateId?: string;
+  visitDate: string;
 }
