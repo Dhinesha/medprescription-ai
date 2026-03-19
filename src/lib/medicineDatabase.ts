@@ -127,10 +127,11 @@ export function searchMedicines(query: string): Medicine[] {
     .slice(0, 8);
 }
 
-export function formatMedicineLine(med: Medicine, strengthIdx = 0, freqIdx = 0, instrIdx = 0): string {
+export function formatMedicineLine(med: Medicine, strengthIdx = 0, freqIdx = 0, instrIdx = 0, timing?: string): string {
   const parts = [`${med.form} ${med.name}`];
   if (med.strengths[strengthIdx]) parts.push(med.strengths[strengthIdx]);
   parts.push(med.frequencies[freqIdx]);
   if (med.instructions[instrIdx]) parts.push(med.instructions[instrIdx]);
+  if (timing) parts.push(`— ${timing}`);
   return parts.join(" ");
 }
