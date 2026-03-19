@@ -76,13 +76,31 @@ export default function PrescriptionScanner() {
     setResult(null);
     setReminders(null);
 
-    // Convert PDF to base64
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = (e.target?.result as string).split(",")[1];
-      setImagePreview(`data:application/pdf;base64,${base64}`);
-    };
-    reader.readAsDataURL(file);
+    // Convert PDF first page to image using pdfjs
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfjsLib = await import("pdfjs-dist");
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
+      
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const page = await pdf.getPage(1);
+      const scale = 2;
+      const viewport = page.getViewport({ scale });
+      
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext("2d")!;
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      
+      const imageDataUrl = canvas.toDataURL("image/png");
+      setImagePreview(imageDataUrl);
+      toast.success("PDF converted for analysis");
+    } catch (err) {
+      console.error("PDF conversion error:", err);
+      toast.error("Failed to process PDF. Try uploading an image instead.");
+      setPdfName(null);
+    }
   };
 
   const handleFileSelect = (file: File) => {
@@ -100,17 +118,16 @@ export default function PrescriptionScanner() {
     setAnalyzing(true);
     try {
       const base64 = imagePreview.split(",")[1];
-      const isPdf = imagePreview.startsWith("data:application/pdf");
 
       const { data, error } = await supabase.functions.invoke("med-assistant", {
         body: {
           image_base64: base64,
           type: "scan_prescription",
-          is_pdf: isPdf,
         },
       });
       if (error) throw error;
       const content = data.result;
+      if (!content) throw new Error("No result from analysis");
       const jsonMatch = content.match(/```json\s*([\s\S]*?)```/) || content.match(/\{[\s\S]*\}/);
       const parsed = JSON.parse(jsonMatch?.[1] || jsonMatch?.[0] || content);
       setResult(parsed);

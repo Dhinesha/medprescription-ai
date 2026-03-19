@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { image_base64, prompt, type, is_pdf } = await req.json();
+    const { image_base64, prompt, type } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -49,32 +49,20 @@ Respond ONLY in this JSON format:
   ],
   "warnings": ["Do not take on empty stomach"]
 }`;
-
-      if (is_pdf) {
-        // For PDFs, send as application/pdf mime type
-        const cleanedBase64 = image_base64.replace(/\s/g, "");
-        userContent = [
-          {
-            type: "image_url",
-            image_url: { url: `data:application/pdf;base64,${cleanedBase64}` },
-          },
-          { type: "text", text: "Analyze this prescription document and extract all medicine details including name, dosage, frequency, timing, food instructions, and duration." },
-        ];
-      } else {
-        // For images
-        let cleanedBase64 = image_base64;
-        if (cleanedBase64.includes(",") && cleanedBase64.startsWith("data:")) {
-          cleanedBase64 = cleanedBase64.split(",")[1];
-        }
-        cleanedBase64 = cleanedBase64.replace(/\s/g, "");
-        userContent = [
-          {
-            type: "image_url",
-            image_url: { url: `data:image/jpeg;base64,${cleanedBase64}` },
-          },
-          { type: "text", text: "Analyze this prescription image and extract all medicine details." },
-        ];
+      // Clean base64 data
+      let cleanedBase64 = image_base64 || "";
+      if (cleanedBase64.includes(",") && cleanedBase64.startsWith("data:")) {
+        cleanedBase64 = cleanedBase64.split(",")[1];
       }
+      cleanedBase64 = cleanedBase64.replace(/\s/g, "");
+
+      userContent = [
+        {
+          type: "image_url",
+          image_url: { url: `data:image/png;base64,${cleanedBase64}` },
+        },
+        { type: "text", text: "Analyze this prescription image and extract all medicine details." },
+      ];
     } else if (type === "chat") {
       systemPrompt = `You are MedAssist, a helpful medical AI assistant. You ONLY answer medical and health-related questions. 
 
