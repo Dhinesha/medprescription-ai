@@ -8,6 +8,8 @@ import PatientStep from "@/components/PatientStep";
 import VoiceStep from "@/components/VoiceStep";
 import PreviewStep from "@/components/PreviewStep";
 import HistoryView from "@/components/HistoryView";
+import PrescriptionScanner from "@/components/PrescriptionScanner";
+import MedAssistant from "@/components/MedAssistant";
 import { fetchTemplates, fetchPrescriptions } from "@/lib/api";
 import type { HospitalTemplate, PatientInfo, WorkflowStep } from "@/types/medical";
 
@@ -129,6 +131,18 @@ export default function Dashboard() {
               onRefresh={loadTemplates}
               onNext={() => { setActiveTab("workflow"); completeStep("template", "patient"); }}
             />
+          </motion.div>
+        )}
+
+        {activeTab === "scanner" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <PrescriptionScanner />
+          </motion.div>
+        )}
+
+        {activeTab === "assistant" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <MedAssistant />
           </motion.div>
         )}
 
