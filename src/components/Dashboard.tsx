@@ -29,7 +29,7 @@ export default function Dashboard() {
 
   const store = useAppStore();
 
-  const { isListening, transcript, interimTranscript, startListening, stopListening, resetTranscript } = useSpeechRecognition({ language });
+  const { isListening, transcript, interimTranscript, isSupported, startListening, stopListening, resetTranscript, setManualTranscript } = useSpeechRecognition({ language });
 
   const handleFieldChange = useCallback((field: keyof MedicalReport, value: string) => {
     setReport(prev => ({ ...prev, [field]: value }));
