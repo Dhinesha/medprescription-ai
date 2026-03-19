@@ -1,16 +1,19 @@
-import { Mic, MicOff, RotateCcw, Languages } from "lucide-react";
+import { Mic, MicOff, RotateCcw, Languages, Keyboard } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface VoiceRecorderProps {
   isListening: boolean;
   transcript: string;
   interimTranscript: string;
   language: string;
+  isSupported: boolean;
   onStart: () => void;
   onStop: () => void;
   onReset: () => void;
   onLanguageChange: (lang: string) => void;
+  onManualTranscript: (text: string) => void;
 }
 
 const languages = [
@@ -19,9 +22,19 @@ const languages = [
 ];
 
 export default function VoiceRecorder({
-  isListening, transcript, interimTranscript, language,
-  onStart, onStop, onReset, onLanguageChange,
+  isListening, transcript, interimTranscript, language, isSupported,
+  onStart, onStop, onReset, onLanguageChange, onManualTranscript,
 }: VoiceRecorderProps) {
+  const [showTextInput, setShowTextInput] = useState(false);
+  const [manualText, setManualText] = useState("");
+
+  const handleManualSubmit = () => {
+    if (manualText.trim()) {
+      onManualTranscript(manualText.trim());
+      setManualText("");
+    }
+  };
+
   return (
     <div className="bg-card rounded-2xl card-shadow p-6 sm:p-8">
       <div className="flex items-center justify-between mb-6">
@@ -65,6 +78,35 @@ export default function VoiceRecorder({
           {isListening ? "Listening... Speak clearly" : "Tap to start recording"}
         </p>
 
+        {/* Text input toggle */}
+        <button
+          onClick={() => setShowTextInput(!showTextInput)}
+          className="flex items-center gap-2 text-sm text-primary font-medium hover:underline"
+        >
+          <Keyboard className="w-4 h-4" />
+          {showTextInput ? "Hide text input" : "Or type patient details instead"}
+        </button>
+
+        {/* Manual text input */}
+        {showTextInput && (
+          <div className="w-full space-y-3">
+            <textarea
+              value={manualText}
+              onChange={e => setManualText(e.target.value)}
+              rows={5}
+              placeholder="Type patient details here... e.g. Patient name is Ravi, age 45, male. Complaint of chest pain for 2 days. Symptoms include fever, cough. Diagnosis is viral fever. Prescribe paracetamol 500mg three times daily. Advice rest for 3 days. Follow up in one week."
+              className="w-full bg-muted rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 resize-none outline-none focus:ring-2 focus:ring-ring transition"
+            />
+            <Button
+              onClick={handleManualSubmit}
+              disabled={!manualText.trim()}
+              className="w-full bg-primary text-primary-foreground"
+            >
+              Use This Text
+            </Button>
+          </div>
+        )}
+
         {/* Transcript display */}
         {(transcript || interimTranscript) && (
           <div className="w-full">
@@ -80,6 +122,12 @@ export default function VoiceRecorder({
                 <span className="text-muted-foreground italic">{interimTranscript}</span>
               )}
             </div>
+          </div>
+        )}
+
+        {!isSupported && (
+          <div className="w-full bg-medical-orange/10 text-medical-orange rounded-xl p-4 text-sm">
+            Voice recording is not available in this environment. Please use the text input above, or open the app directly in Chrome (not in an iframe).
           </div>
         )}
       </div>
