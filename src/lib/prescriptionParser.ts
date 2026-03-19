@@ -81,6 +81,7 @@ export function parsePrescriptionLines(text: string): PrescriptionRow[] {
     if (/apply locally/i.test(lower)) extras.push("Apply locally");
     const instructions = extras.join(", ");
 
-    return { name: name.replace(/\s+/g, " ").trim(), dosage, morning: m, afternoon: a, night: n, beforeFood, afterFood, duration, instructions };
+    const type = detectMedicineType(line);
+    return { name: name.replace(/\s+/g, " ").trim(), dosage, morning: m, afternoon: a, night: n, beforeFood, afterFood, duration, instructions, type };
   });
 }
