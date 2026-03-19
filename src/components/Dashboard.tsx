@@ -126,10 +126,12 @@ export default function Dashboard() {
                   transcript={transcript}
                   interimTranscript={interimTranscript}
                   language={language}
+                  isSupported={isSupported}
                   onStart={startListening}
                   onStop={stopListening}
                   onReset={resetTranscript}
                   onLanguageChange={setLanguage}
+                  onManualTranscript={setManualTranscript}
                 />
                 <AIFormatButton
                   transcript={transcript}
