@@ -6,6 +6,8 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import type { HospitalTemplate, PatientInfo } from "@/types/medical";
 import { savePrescription } from "@/lib/api";
+import { parsePrescriptionLines } from "@/lib/prescriptionParser";
+import PrescriptionTable from "@/components/PrescriptionTable";
 
 interface PreviewStepProps {
   template: HospitalTemplate;
