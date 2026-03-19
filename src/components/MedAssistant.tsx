@@ -263,13 +263,26 @@ export default function MedAssistant() {
 
         {/* Input */}
         <div className="p-4 border-t border-border">
+          {isListening && (
+            <div className="flex items-center gap-2 mb-2 text-xs text-medical-red">
+              <div className="w-2 h-2 rounded-full bg-medical-red animate-pulse" />
+              Listening... speak your question
+            </div>
+          )}
           <div className="flex gap-2">
+            <Button
+              onClick={isListening ? stopListening : startListening}
+              variant="outline"
+              className={`h-12 w-12 p-0 rounded-xl shrink-0 ${isListening ? "bg-medical-red/10 border-medical-red text-medical-red" : ""}`}
+            >
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </Button>
             <input
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && sendMessage()}
-              placeholder="Ask a medical question..."
+              placeholder={isListening ? "Listening..." : "Ask a medical question..."}
               className="flex-1 bg-muted rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-ring transition"
             />
             <Button
