@@ -216,6 +216,15 @@ export default function MedAssistant() {
                     : "medical-gradient text-primary-foreground"
                 }`}>
                   <div className="leading-relaxed">{renderContent(msg.content)}</div>
+                  {msg.role === "assistant" && msg.id !== "welcome" && (
+                    <button
+                      onClick={() => isSpeaking ? stopSpeaking() : speakText(msg.content)}
+                      className="mt-2 flex items-center gap-1 text-xs text-primary hover:underline"
+                    >
+                      <Volume2 className={`w-3 h-3 ${isSpeaking ? "animate-pulse" : ""}`} />
+                      {isSpeaking ? "Stop" : "Listen"}
+                    </button>
+                  )}
                 </div>
               </motion.div>
             ))}
