@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { image_base64, prompt, type, is_pdf } = await req.json();
+    const { image_base64, prompt, type } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
