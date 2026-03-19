@@ -312,12 +312,23 @@ export default function PrescriptionTable({ rows, showTracker = false }: Prescri
         </table>
       </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap gap-4 pt-3 text-[11px] text-muted-foreground">
-        <span className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-medical-teal/15 flex items-center justify-center"><Check className="w-2.5 h-2.5 text-medical-teal" /></div> Take</span>
-        <span className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center"><X className="w-2.5 h-2.5 text-muted-foreground/30" /></div> Skip</span>
-        <span className="flex items-center gap-1"><span className="px-1.5 py-0.5 rounded-full bg-medical-orange/15 text-medical-orange text-[10px]">BF</span> Before Food</span>
-        <span className="flex items-center gap-1"><span className="px-1.5 py-0.5 rounded-full bg-medical-teal/15 text-medical-teal text-[10px]">AF</span> After Food</span>
+      {/* Color Legend */}
+      <div className="pt-3 space-y-2">
+        <p className="text-[11px] font-semibold text-muted-foreground">Medicine Types:</p>
+        <div className="flex flex-wrap gap-2 text-[11px]">
+          {Object.entries(typeConfig).filter(([key]) => key !== "other").map(([key, cfg]) => (
+            <span key={key} className={`flex items-center gap-1 px-2 py-1 rounded-full ${cfg.badge}`}>
+              {cfg.emoji} {cfg.label}
+            </span>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-4 pt-1 text-[11px] text-muted-foreground">
+          <span className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-medical-teal/15 flex items-center justify-center"><Check className="w-2.5 h-2.5 text-medical-teal" /></div> Take</span>
+          <span className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center"><X className="w-2.5 h-2.5 text-muted-foreground/30" /></div> Skip</span>
+          <span className="flex items-center gap-1"><span className="px-1.5 py-0.5 rounded-full bg-medical-orange/15 text-medical-orange text-[10px]">BF</span> Before Food</span>
+          <span className="flex items-center gap-1"><span className="px-1.5 py-0.5 rounded-full bg-medical-teal/15 text-medical-teal text-[10px]">AF</span> After Food</span>
+        </div>
+      </div>
       </div>
     </div>
   );
