@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { Bot, Send, Loader2, User, Sparkles } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Bot, Send, Loader2, User, Sparkles, Mic, MicOff, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,7 +23,82 @@ export default function MedAssistant() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+
+  // Voice-to-text for chat input
+  const startListening = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Voice input not supported. Use Chrome or open the app directly.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event: any) => {
+      let final = "";
+      let interim = "";
+      for (let i = 0; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          final += event.results[i][0].transcript;
+        } else {
+          interim += event.results[i][0].transcript;
+        }
+      }
+      setInput(final || interim);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech error:", event.error);
+      if (event.error === "not-allowed") {
+        toast.error("Microphone access denied.");
+      }
+      setIsListening(false);
+      recognitionRef.current = null;
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsListening(true);
+  }, []);
+
+  const stopListening = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+  }, []);
+
+  // Text-to-speech for AI responses
+  const speakText = useCallback((text: string) => {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    // Strip markdown
+    const clean = text.replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/^[-#]+\s*/gm, "").replace(/\n+/g, ". ");
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
+  const stopSpeaking = useCallback(() => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -141,6 +216,15 @@ export default function MedAssistant() {
                     : "medical-gradient text-primary-foreground"
                 }`}>
                   <div className="leading-relaxed">{renderContent(msg.content)}</div>
+                  {msg.role === "assistant" && msg.id !== "welcome" && (
+                    <button
+                      onClick={() => isSpeaking ? stopSpeaking() : speakText(msg.content)}
+                      className="mt-2 flex items-center gap-1 text-xs text-primary hover:underline"
+                    >
+                      <Volume2 className={`w-3 h-3 ${isSpeaking ? "animate-pulse" : ""}`} />
+                      {isSpeaking ? "Stop" : "Listen"}
+                    </button>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -179,13 +263,26 @@ export default function MedAssistant() {
 
         {/* Input */}
         <div className="p-4 border-t border-border">
+          {isListening && (
+            <div className="flex items-center gap-2 mb-2 text-xs text-medical-red">
+              <div className="w-2 h-2 rounded-full bg-medical-red animate-pulse" />
+              Listening... speak your question
+            </div>
+          )}
           <div className="flex gap-2">
+            <Button
+              onClick={isListening ? stopListening : startListening}
+              variant="outline"
+              className={`h-12 w-12 p-0 rounded-xl shrink-0 ${isListening ? "bg-medical-red/10 border-medical-red text-medical-red" : ""}`}
+            >
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </Button>
             <input
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && sendMessage()}
-              placeholder="Ask a medical question..."
+              placeholder={isListening ? "Listening..." : "Ask a medical question..."}
               className="flex-1 bg-muted rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-ring transition"
             />
             <Button
