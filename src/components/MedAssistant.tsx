@@ -263,14 +263,57 @@ export default function MedAssistant() {
         )}
 
         {/* Input */}
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-border space-y-2">
           {isListening && (
-            <div className="flex items-center gap-2 mb-2 text-xs text-medical-red">
+            <div className="flex items-center gap-2 text-xs text-medical-red">
               <div className="w-2 h-2 rounded-full bg-medical-red animate-pulse" />
               Listening... speak your question
             </div>
           )}
+
+          {/* Language selector row */}
+          {showLangPicker && (
+            <div className="flex flex-wrap gap-1.5 pb-1">
+              {[
+                { code: "en-US", label: "English", flag: "🇬🇧" },
+                { code: "ta-IN", label: "தமிழ்", flag: "🇮🇳" },
+                { code: "hi-IN", label: "हिन्दी", flag: "🇮🇳" },
+                { code: "te-IN", label: "తెలుగు", flag: "🇮🇳" },
+                { code: "kn-IN", label: "ಕನ್ನಡ", flag: "🇮🇳" },
+                { code: "ml-IN", label: "മലയാളം", flag: "🇮🇳" },
+                { code: "mr-IN", label: "मराठी", flag: "🇮🇳" },
+                { code: "bn-IN", label: "বাংলা", flag: "🇮🇳" },
+                { code: "gu-IN", label: "ગુજરાતી", flag: "🇮🇳" },
+                { code: "pa-IN", label: "ਪੰਜਾਬੀ", flag: "🇮🇳" },
+              ].map(lang => (
+                <button
+                  key={lang.code}
+                  onClick={() => { setVoiceLang(lang.code); setShowLangPicker(false); }}
+                  className={`text-xs px-2.5 py-1.5 rounded-lg border transition-colors ${
+                    voiceLang === lang.code
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background border-border text-foreground hover:bg-accent/50"
+                  }`}
+                >
+                  {lang.flag} {lang.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="flex gap-2">
+            {/* Language toggle */}
+            <Button
+              onClick={() => setShowLangPicker(!showLangPicker)}
+              variant="outline"
+              className="h-12 px-2.5 rounded-xl shrink-0 text-xs gap-1"
+              title="Change voice language"
+            >
+              <Languages className="w-4 h-4" />
+              <span className="hidden sm:inline">{voiceLang.split("-")[0].toUpperCase()}</span>
+            </Button>
+
+            {/* Mic */}
             <Button
               onClick={isListening ? stopListening : startListening}
               variant="outline"
@@ -278,6 +321,7 @@ export default function MedAssistant() {
             >
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </Button>
+
             <input
               type="text"
               value={input}
