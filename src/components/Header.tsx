@@ -1,6 +1,7 @@
-import { Stethoscope, Menu, X } from "lucide-react";
+import { Menu, X, ScanLine, Bot, FileText, ClipboardList, History } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import logoImg from "@/assets/medtemplate-logo.png";
 
 interface HeaderProps {
   activeTab: string;
@@ -8,9 +9,11 @@ interface HeaderProps {
 }
 
 const tabs = [
-  { id: "workflow", label: "New Prescription" },
-  { id: "templates", label: "Templates" },
-  { id: "history", label: "History" },
+  { id: "workflow", label: "New Rx", icon: FileText },
+  { id: "templates", label: "Templates", icon: ClipboardList },
+  { id: "scanner", label: "Scan Rx", icon: ScanLine },
+  { id: "assistant", label: "MedAssist", icon: Bot },
+  { id: "history", label: "History", icon: History },
 ];
 
 export default function Header({ activeTab, onTabChange }: HeaderProps) {
@@ -21,9 +24,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl medical-gradient flex items-center justify-center">
-              <Stethoscope className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <img src={logoImg} alt="MedTemplate" className="w-10 h-10 rounded-xl" />
             <div>
               <h1 className="text-lg font-bold text-foreground leading-tight">MedTemplate</h1>
               <p className="text-xs text-muted-foreground hidden sm:block">Voice Prescription System</p>
@@ -31,19 +32,23 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
           </div>
 
           <nav className="hidden md:flex items-center gap-1">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === tab.id
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+            {tabs.map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
+                    activeTab === tab.id
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
           </nav>
 
           <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 rounded-lg hover:bg-muted">
@@ -61,19 +66,23 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
             className="md:hidden border-t border-border overflow-hidden"
           >
             <div className="px-4 py-3 space-y-1">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => { onTabChange(tab.id); setMobileOpen(false); }}
-                  className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                    activeTab === tab.id
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              {tabs.map(tab => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => { onTabChange(tab.id); setMobileOpen(false); }}
+                    className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                      activeTab === tab.id
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
           </motion.div>
         )}
