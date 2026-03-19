@@ -1,4 +1,6 @@
 // Parses prescription text lines into structured table rows
+export type MedicineType = "tablet" | "capsule" | "syrup" | "injection" | "ointment" | "drops" | "inhaler" | "other";
+
 export interface PrescriptionRow {
   name: string;
   dosage: string;
@@ -9,6 +11,19 @@ export interface PrescriptionRow {
   afterFood: boolean;
   duration: string;
   instructions: string;
+  type: MedicineType;
+}
+
+export function detectMedicineType(line: string): MedicineType {
+  const lower = line.toLowerCase();
+  if (/\b(tab|tablet)\b/i.test(lower)) return "tablet";
+  if (/\b(cap|capsule)\b/i.test(lower)) return "capsule";
+  if (/\b(syp|syrup|suspension|liquid)\b/i.test(lower)) return "syrup";
+  if (/\b(inj|injection|iv|im)\b/i.test(lower)) return "injection";
+  if (/\b(ointment|cream|gel|lotion)\b/i.test(lower)) return "ointment";
+  if (/\b(e\/d|drops|eye|ear|nasal)\b/i.test(lower)) return "drops";
+  if (/\b(inhaler|rotacap|puff)\b/i.test(lower)) return "inhaler";
+  return "tablet"; // default
 }
 
 export function parsePrescriptionLines(text: string): PrescriptionRow[] {
@@ -66,6 +81,7 @@ export function parsePrescriptionLines(text: string): PrescriptionRow[] {
     if (/apply locally/i.test(lower)) extras.push("Apply locally");
     const instructions = extras.join(", ");
 
-    return { name: name.replace(/\s+/g, " ").trim(), dosage, morning: m, afternoon: a, night: n, beforeFood, afterFood, duration, instructions };
+    const type = detectMedicineType(line);
+    return { name: name.replace(/\s+/g, " ").trim(), dosage, morning: m, afternoon: a, night: n, beforeFood, afterFood, duration, instructions, type };
   });
 }

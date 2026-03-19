@@ -100,6 +100,7 @@ export default function PrescriptionScanner() {
     afterFood: m.afterFood,
     duration: m.duration,
     instructions: "",
+    type: "tablet" as const,
   })) || [];
 
   return (

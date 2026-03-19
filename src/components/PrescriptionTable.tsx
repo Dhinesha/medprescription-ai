@@ -1,7 +1,18 @@
 import { useState } from "react";
-import { Check, X, Sun, Cloud, Moon, Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, X, Sun, Cloud, Moon, Calendar, ChevronDown, ChevronUp, Pill } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { PrescriptionRow } from "@/lib/prescriptionParser";
+import type { PrescriptionRow, MedicineType } from "@/lib/prescriptionParser";
+
+const typeConfig: Record<MedicineType, { label: string; emoji: string; bg: string; border: string; text: string; badge: string }> = {
+  tablet:    { label: "Tablet",    emoji: "💊", bg: "bg-blue-50 dark:bg-blue-950/30",    border: "border-l-blue-500",    text: "text-blue-700 dark:text-blue-300",    badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" },
+  capsule:   { label: "Capsule",   emoji: "🔵", bg: "bg-purple-50 dark:bg-purple-950/30", border: "border-l-purple-500",  text: "text-purple-700 dark:text-purple-300", badge: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300" },
+  syrup:     { label: "Syrup",     emoji: "🧴", bg: "bg-amber-50 dark:bg-amber-950/30",   border: "border-l-amber-500",   text: "text-amber-700 dark:text-amber-300",   badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" },
+  injection: { label: "Injection", emoji: "💉", bg: "bg-red-50 dark:bg-red-950/30",      border: "border-l-red-500",     text: "text-red-700 dark:text-red-300",       badge: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300" },
+  ointment:  { label: "Ointment",  emoji: "🧴", bg: "bg-green-50 dark:bg-green-950/30",  border: "border-l-green-500",   text: "text-green-700 dark:text-green-300",   badge: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" },
+  drops:     { label: "Drops",     emoji: "💧", bg: "bg-cyan-50 dark:bg-cyan-950/30",    border: "border-l-cyan-500",    text: "text-cyan-700 dark:text-cyan-300",     badge: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300" },
+  inhaler:   { label: "Inhaler",   emoji: "🌬️", bg: "bg-teal-50 dark:bg-teal-950/30",    border: "border-l-teal-500",    text: "text-teal-700 dark:text-teal-300",     badge: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300" },
+  other:     { label: "Other",     emoji: "📋", bg: "bg-gray-50 dark:bg-gray-950/30",    border: "border-l-gray-500",    text: "text-gray-700 dark:text-gray-300",     badge: "bg-gray-100 text-gray-700 dark:bg-gray-900/50 dark:text-gray-300" },
+};
 
 interface PrescriptionTableProps {
   rows: PrescriptionRow[];
@@ -105,15 +116,25 @@ export default function PrescriptionTable({ rows, showTracker = false }: Prescri
               const completion = showTracker ? getCompletionPercent(i, row) : 0;
               return (
                 <>
-                  <tr key={i} className={i % 2 === 0 ? "bg-background" : "bg-muted/30"}>
+                  <tr key={i} className={`${typeConfig[row.type].bg} border-l-4 ${typeConfig[row.type].border}`}>
                     <td className="py-2.5 px-3 border border-border text-muted-foreground font-mono text-xs text-center">
                       {i + 1}
                     </td>
-                    <td className="py-2.5 px-3 border border-border font-medium text-foreground">
-                      {row.name}
-                      {row.instructions && (
-                        <span className="block text-xs text-muted-foreground mt-0.5">{row.instructions}</span>
-                      )}
+                    <td className="py-2.5 px-3 border border-border">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{typeConfig[row.type].emoji}</span>
+                        <div>
+                          <span className="font-medium text-foreground">{row.name}</span>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${typeConfig[row.type].badge}`}>
+                              {typeConfig[row.type].label}
+                            </span>
+                            {row.instructions && (
+                              <span className="text-xs text-muted-foreground">{row.instructions}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </td>
                     <td className="py-2.5 px-3 border border-border text-center font-semibold text-foreground">
                       {row.dosage || "—"}
@@ -291,12 +312,22 @@ export default function PrescriptionTable({ rows, showTracker = false }: Prescri
         </table>
       </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap gap-4 pt-3 text-[11px] text-muted-foreground">
-        <span className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-medical-teal/15 flex items-center justify-center"><Check className="w-2.5 h-2.5 text-medical-teal" /></div> Take</span>
-        <span className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center"><X className="w-2.5 h-2.5 text-muted-foreground/30" /></div> Skip</span>
-        <span className="flex items-center gap-1"><span className="px-1.5 py-0.5 rounded-full bg-medical-orange/15 text-medical-orange text-[10px]">BF</span> Before Food</span>
-        <span className="flex items-center gap-1"><span className="px-1.5 py-0.5 rounded-full bg-medical-teal/15 text-medical-teal text-[10px]">AF</span> After Food</span>
+      {/* Color Legend */}
+      <div className="pt-3 space-y-2">
+        <p className="text-[11px] font-semibold text-muted-foreground">Medicine Types:</p>
+        <div className="flex flex-wrap gap-2 text-[11px]">
+          {Object.entries(typeConfig).filter(([key]) => key !== "other").map(([key, cfg]) => (
+            <span key={key} className={`flex items-center gap-1 px-2 py-1 rounded-full ${cfg.badge}`}>
+              {cfg.emoji} {cfg.label}
+            </span>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-4 pt-1 text-[11px] text-muted-foreground">
+          <span className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-medical-teal/15 flex items-center justify-center"><Check className="w-2.5 h-2.5 text-medical-teal" /></div> Take</span>
+          <span className="flex items-center gap-1"><div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center"><X className="w-2.5 h-2.5 text-muted-foreground/30" /></div> Skip</span>
+          <span className="flex items-center gap-1"><span className="px-1.5 py-0.5 rounded-full bg-medical-orange/15 text-medical-orange text-[10px]">BF</span> Before Food</span>
+          <span className="flex items-center gap-1"><span className="px-1.5 py-0.5 rounded-full bg-medical-teal/15 text-medical-teal text-[10px]">AF</span> After Food</span>
+        </div>
       </div>
     </div>
   );
