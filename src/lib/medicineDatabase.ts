@@ -5,7 +5,29 @@ export interface Medicine {
   strengths: string[];
   frequencies: string[];
   instructions: string[];
+  timing?: string[]; // morning, evening, night, before/after dinner etc.
 }
+
+// Timing options available for all medicines
+export const timingOptions = [
+  "Morning",
+  "Afternoon",
+  "Evening",
+  "Night",
+  "Morning & Night",
+  "Morning, Afternoon & Night",
+  "Before food",
+  "After food",
+  "Before breakfast",
+  "After breakfast",
+  "Before lunch",
+  "After lunch",
+  "Before dinner",
+  "After dinner",
+  "Empty stomach",
+  "At bedtime",
+  "SOS (as needed)",
+];
 
 export const medicineDatabase: Medicine[] = [
   // Analgesics / Antipyretics
