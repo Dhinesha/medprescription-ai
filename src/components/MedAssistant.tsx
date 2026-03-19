@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Bot, Send, Loader2, User, Sparkles, Mic, MicOff, Volume2 } from "lucide-react";
+import { Bot, Send, Loader2, User, Sparkles, Mic, MicOff, Volume2, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
