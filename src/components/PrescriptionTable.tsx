@@ -329,7 +329,6 @@ export default function PrescriptionTable({ rows, showTracker = false }: Prescri
           <span className="flex items-center gap-1"><span className="px-1.5 py-0.5 rounded-full bg-medical-teal/15 text-medical-teal text-[10px]">AF</span> After Food</span>
         </div>
       </div>
-      </div>
     </div>
   );
 }
