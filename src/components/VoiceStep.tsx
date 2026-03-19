@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import MedicineSuggestions from "@/components/MedicineSuggestions";
 
 interface VoiceStepProps {
   prescriptionText: string;
