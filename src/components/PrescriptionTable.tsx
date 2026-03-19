@@ -116,15 +116,25 @@ export default function PrescriptionTable({ rows, showTracker = false }: Prescri
               const completion = showTracker ? getCompletionPercent(i, row) : 0;
               return (
                 <>
-                  <tr key={i} className={i % 2 === 0 ? "bg-background" : "bg-muted/30"}>
+                  <tr key={i} className={`${typeConfig[row.type].bg} border-l-4 ${typeConfig[row.type].border}`}>
                     <td className="py-2.5 px-3 border border-border text-muted-foreground font-mono text-xs text-center">
                       {i + 1}
                     </td>
-                    <td className="py-2.5 px-3 border border-border font-medium text-foreground">
-                      {row.name}
-                      {row.instructions && (
-                        <span className="block text-xs text-muted-foreground mt-0.5">{row.instructions}</span>
-                      )}
+                    <td className="py-2.5 px-3 border border-border">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{typeConfig[row.type].emoji}</span>
+                        <div>
+                          <span className="font-medium text-foreground">{row.name}</span>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${typeConfig[row.type].badge}`}>
+                              {typeConfig[row.type].label}
+                            </span>
+                            {row.instructions && (
+                              <span className="text-xs text-muted-foreground">{row.instructions}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </td>
                     <td className="py-2.5 px-3 border border-border text-center font-semibold text-foreground">
                       {row.dosage || "—"}
