@@ -29,11 +29,13 @@ export function useSpeechRecognition({ language = "en-US" }: UseSpeechRecognitio
       recognition.onresult = (event: any) => {
         let final = "";
         let interim = "";
-        for (let i = 0; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            final += event.results[i][0].transcript + " ";
+        // Only iterate from resultIndex to avoid re-appending previous final results
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const res = event.results[i];
+          if (res.isFinal) {
+            final += res[0].transcript + " ";
           } else {
-            interim += event.results[i][0].transcript;
+            interim += res[0].transcript;
           }
         }
         if (final) setTranscript(prev => prev + final);
