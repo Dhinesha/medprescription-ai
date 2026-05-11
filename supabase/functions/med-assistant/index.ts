@@ -82,6 +82,49 @@ IMPORTANT RULES:
 - Format responses with clear sections using markdown`;
 
       userContent = [{ type: "text", text: prompt }];
+    } else if (type === "identify_product") {
+      systemPrompt = `You are a pharmaceutical product identification assistant. Analyze the photo of the medical product (tablet strip, syrup bottle, ointment, inhaler, etc.) and extract every detail visible on the packaging. Use general pharma knowledge to fill safe, commonly-known fields when not visible (mark them as "approx").
+
+Respond ONLY in this strict JSON format (no markdown, no commentary):
+{
+  "brand": "Brand / trade name",
+  "genericName": "Active ingredient(s)",
+  "manufacturer": "Company name",
+  "productType": "Tablet | Syrup | Capsule | Injection | Ointment | Inhaler | Drops | Other",
+  "strength": "e.g. 500mg / 5ml",
+  "packSize": "e.g. 10 tablets, 60ml",
+  "mrp": "MRP in INR if visible, else 'approx ₹X'",
+  "batch": "Batch no. if visible",
+  "mfgDate": "If visible",
+  "expDate": "If visible",
+  "uses": ["Primary use 1", "Use 2"],
+  "ageWiseDosage": [
+    { "ageGroup": "Infants (0-1 yr)", "dose": "Not recommended / consult pediatrician" },
+    { "ageGroup": "Children (1-12 yrs)", "dose": "10ml twice daily" },
+    { "ageGroup": "Adolescents (12-18 yrs)", "dose": "..." },
+    { "ageGroup": "Adults (18+ yrs)", "dose": "..." },
+    { "ageGroup": "Elderly (60+ yrs)", "dose": "..." }
+  ],
+  "timeForUse": "When/how to take it (e.g. After food, twice daily, morning & night)",
+  "duration": "Typical course (e.g. 3-5 days)",
+  "sideEffects": ["..."],
+  "warnings": ["Pregnancy/lactation/driving/alcohol cautions"],
+  "storage": "How to store",
+  "disclaimer": "This is informational only. Always consult a doctor or pharmacist before use."
+}
+
+If the image is not a medical product, return: { "error": "Not a medical product image" }`;
+
+      let cleanedBase64 = image_base64 || "";
+      if (cleanedBase64.includes(",") && cleanedBase64.startsWith("data:")) {
+        cleanedBase64 = cleanedBase64.split(",")[1];
+      }
+      cleanedBase64 = cleanedBase64.replace(/\s/g, "");
+
+      userContent = [
+        { type: "image_url", image_url: { url: `data:image/png;base64,${cleanedBase64}` } },
+        { type: "text", text: "Identify this medical product and return the structured JSON." },
+      ];
     } else if (type === "set_reminders") {
       systemPrompt = `You are a medication schedule assistant. Based on the medicines provided, create a daily schedule with exact timings.
 
