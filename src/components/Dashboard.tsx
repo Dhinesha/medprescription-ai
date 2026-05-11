@@ -10,6 +10,7 @@ import PreviewStep from "@/components/PreviewStep";
 import HistoryView from "@/components/HistoryView";
 import PrescriptionScanner from "@/components/PrescriptionScanner";
 import MedAssistant from "@/components/MedAssistant";
+import ProductIdentifier from "@/components/ProductIdentifier";
 import { fetchTemplates, fetchPrescriptions } from "@/lib/api";
 import type { HospitalTemplate, PatientInfo, WorkflowStep } from "@/types/medical";
 
@@ -137,6 +138,12 @@ export default function Dashboard() {
         {activeTab === "scanner" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <PrescriptionScanner />
+          </motion.div>
+        )}
+
+        {activeTab === "product" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <ProductIdentifier />
           </motion.div>
         )}
 
