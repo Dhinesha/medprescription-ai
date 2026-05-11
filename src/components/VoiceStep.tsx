@@ -82,18 +82,35 @@ export default function VoiceStep({ prescriptionText, onPrescriptionChange, onNe
         {/* LEFT: Controls */}
         <div className="lg:col-span-3 space-y-4">
           <div className="bg-card rounded-2xl card-shadow p-6">
-            {/* Language selector */}
-            <div className="flex items-center justify-between mb-5">
+            {/* Language selector + word mode */}
+            <div className="flex items-center justify-between mb-5 gap-2 flex-wrap">
               <p className="text-sm text-muted-foreground">Speak the prescription clearly</p>
-              <div className="flex items-center gap-2">
-                <Languages className="w-4 h-4 text-muted-foreground" />
-                <select
-                  value={language}
-                  onChange={e => setLanguage(e.target.value)}
-                  className="text-sm bg-muted text-foreground rounded-lg px-3 py-1.5 border-none outline-none cursor-pointer"
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isListening) stopListening();
+                    setWordMode(v => !v);
+                  }}
+                  className={`text-xs font-medium rounded-lg px-3 py-1.5 border transition ${
+                    wordMode
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-muted text-foreground border-transparent hover:bg-muted/70"
+                  }`}
+                  title="One word at a time, no duplicates"
                 >
-                  {languages.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
-                </select>
+                  Word mode {wordMode ? "ON" : "OFF"}
+                </button>
+                <div className="flex items-center gap-2">
+                  <Languages className="w-4 h-4 text-muted-foreground" />
+                  <select
+                    value={language}
+                    onChange={e => setLanguage(e.target.value)}
+                    className="text-sm bg-muted text-foreground rounded-lg px-3 py-1.5 border-none outline-none cursor-pointer"
+                  >
+                    {languages.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
+                  </select>
+                </div>
               </div>
             </div>
 
