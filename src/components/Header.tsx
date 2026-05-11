@@ -1,4 +1,4 @@
-import { Menu, X, ScanLine, Bot, FileText, ClipboardList, History, LogOut, User } from "lucide-react";
+import { Menu, X, ScanLine, Bot, FileText, ClipboardList, History, LogOut, User, Pill } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +14,7 @@ const tabs = [
   { id: "workflow", label: "New Rx", icon: FileText },
   { id: "templates", label: "Templates", icon: ClipboardList },
   { id: "scanner", label: "Scan Rx", icon: ScanLine },
+  { id: "product", label: "Product ID", icon: Pill },
   { id: "assistant", label: "MedAssist", icon: Bot },
   { id: "history", label: "History", icon: History },
 ];
