@@ -26,9 +26,10 @@ export default function VoiceStep({ prescriptionText, onPrescriptionChange, onNe
   const [showTextInput, setShowTextInput] = useState(false);
   const [manualText, setManualText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [wordMode, setWordMode] = useState(false);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
 
-  const { isListening, transcript, interimTranscript, isSupported, startListening, stopListening, resetTranscript, setManualTranscript } = useSpeechRecognition({ language });
+  const { isListening, transcript, interimTranscript, isSupported, startListening, stopListening, resetTranscript, setManualTranscript } = useSpeechRecognition({ language, wordMode });
 
   const currentText = prescriptionText || transcript;
   const hasContent = currentText.trim().length > 0;
