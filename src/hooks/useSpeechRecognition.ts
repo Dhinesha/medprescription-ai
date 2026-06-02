@@ -91,15 +91,11 @@ export function useSpeechRecognition({ language = "en-US", wordMode = false }: U
           autoGainControl: true,
           channelCount: 1,
           sampleRate: 48000,
-          // @ts-expect-error - non-standard but supported in Chromium
           googEchoCancellation: true,
-          // @ts-expect-error
           googNoiseSuppression: true,
-          // @ts-expect-error
           googHighpassFilter: true,
-          // @ts-expect-error
           googAutoGainControl: true,
-        } as MediaTrackConstraints,
+        } as unknown as MediaTrackConstraints,
       });
       micStreamRef.current = stream;
       return stream;
