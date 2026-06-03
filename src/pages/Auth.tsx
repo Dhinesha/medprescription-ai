@@ -32,7 +32,10 @@ export default function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: fullName } },
+          options: {
+            data: { full_name: fullName, role },
+            emailRedirectTo: `${window.location.origin}/`,
+          },
         });
         if (error) throw error;
         toast.success("Account created! Please check your email to verify your account.");
