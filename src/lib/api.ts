@@ -1,6 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { HospitalTemplate, HospitalTemplateInsert } from "@/types/medical";
 
+async function requireUserId(): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("You must be signed in.");
+  return user.id;
+}
+
 export async function fetchTemplates(): Promise<HospitalTemplate[]> {
   const { data, error } = await supabase
     .from("hospital_templates")
@@ -11,9 +17,10 @@ export async function fetchTemplates(): Promise<HospitalTemplate[]> {
 }
 
 export async function createTemplate(template: HospitalTemplateInsert): Promise<HospitalTemplate> {
+  const user_id = await requireUserId();
   const { data, error } = await supabase
     .from("hospital_templates")
-    .insert(template)
+    .insert({ ...template, user_id })
     .select()
     .single();
   if (error) throw error;
@@ -37,8 +44,9 @@ export async function deleteTemplate(id: string): Promise<void> {
 }
 
 export async function uploadLogo(file: File): Promise<string> {
+  const user_id = await requireUserId();
   const ext = file.name.split(".").pop();
-  const fileName = `${crypto.randomUUID()}.${ext}`;
+  const fileName = `${user_id}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from("hospital-logos").upload(fileName, file);
   if (error) throw error;
   const { data } = supabase.storage.from("hospital-logos").getPublicUrl(fileName);
@@ -55,9 +63,10 @@ export async function savePrescription(prescription: {
   raw_transcript: string | null;
   notes: string | null;
 }) {
+  const user_id = await requireUserId();
   const { data, error } = await supabase
     .from("prescriptions")
-    .insert(prescription)
+    .insert({ ...prescription, user_id })
     .select()
     .single();
   if (error) throw error;
