@@ -119,6 +119,7 @@ export default function PreviewStep({ template, patient, prescriptionText, onPre
         <Button variant="outline" onClick={onBack}><ArrowLeft className="w-4 h-4 mr-1" /> Edit</Button>
         <div className="flex-1" />
         <Button variant="outline" onClick={handleShare}><Share2 className="w-4 h-4 mr-1" /> Share</Button>
+        <Button variant="outline" onClick={() => setPharmacyOpen(true)}><Mail className="w-4 h-4 mr-1" /> Pharmacy</Button>
         <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-1" /> Print</Button>
         <Button variant="outline" onClick={handlePDF}><Download className="w-4 h-4 mr-1" /> PDF</Button>
         <Button onClick={handleSave} disabled={saving || saved} className="bg-medical-teal text-primary-foreground">
