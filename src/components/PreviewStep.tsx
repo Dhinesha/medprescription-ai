@@ -204,6 +204,43 @@ export default function PreviewStep({ template, patient, prescriptionText, onPre
           </Button>
         </div>
       )}
+
+      <Dialog open={pharmacyOpen} onOpenChange={setPharmacyOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send to Pharmacy</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Pharmacy email</label>
+              <input
+                type="email"
+                value={pharmacyEmail}
+                onChange={e => setPharmacyEmail(e.target.value)}
+                placeholder="pharmacy@example.com"
+                className="w-full bg-muted rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Note (optional)</label>
+              <textarea
+                value={pharmacyNote}
+                onChange={e => setPharmacyNote(e.target.value)}
+                rows={3}
+                placeholder="Any special instructions for the pharmacist…"
+                className="w-full bg-muted rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring resize-none"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">This will open your email app with the prescription pre-filled.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPharmacyOpen(false)}>Cancel</Button>
+            <Button onClick={handleSendPharmacy} className="medical-gradient text-primary-foreground">
+              <Mail className="w-4 h-4 mr-1" /> Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
