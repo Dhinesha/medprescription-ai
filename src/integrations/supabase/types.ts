@@ -26,6 +26,7 @@ export type Database = {
           phone: string | null
           registration_number: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           address?: string | null
@@ -38,6 +39,7 @@ export type Database = {
           phone?: string | null
           registration_number?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           address?: string | null
@@ -50,6 +52,7 @@ export type Database = {
           phone?: string | null
           registration_number?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -65,6 +68,7 @@ export type Database = {
           raw_transcript: string | null
           template_id: string | null
           updated_at: string
+          user_id: string | null
           visit_date: string
         }
         Insert: {
@@ -78,6 +82,7 @@ export type Database = {
           raw_transcript?: string | null
           template_id?: string | null
           updated_at?: string
+          user_id?: string | null
           visit_date?: string
         }
         Update: {
@@ -91,6 +96,7 @@ export type Database = {
           raw_transcript?: string | null
           template_id?: string | null
           updated_at?: string
+          user_id?: string | null
           visit_date?: string
         }
         Relationships: [
