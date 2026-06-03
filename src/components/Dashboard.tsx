@@ -53,9 +53,20 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    loadTemplates();
-    loadPrescriptions();
-  }, [loadTemplates, loadPrescriptions]);
+    if (role === "doctor") {
+      loadTemplates();
+      loadPrescriptions();
+    }
+  }, [role, loadTemplates, loadPrescriptions]);
+
+  useEffect(() => {
+    if (role === "patient" && ["workflow", "templates", "history"].includes(activeTab)) {
+      setActiveTab("scanner");
+    } else if (role === "doctor" && ["scanner", "product", "assistant"].includes(activeTab)) {
+      setActiveTab("workflow");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
 
   const goToStep = (newStep: WorkflowStep) => {
     setStep(newStep);
