@@ -77,6 +77,37 @@ export default function PreviewStep({ template, patient, prescriptionText, onPre
     }
   };
 
+  const handleSendPharmacy = () => {
+    if (!pharmacyEmail.trim()) {
+      toast.error("Enter a pharmacy email");
+      return;
+    }
+    const subject = `Prescription for ${patient.patientName} - ${patient.visitDate}`;
+    const body = [
+      `Hello,`,
+      ``,
+      `Please dispense the following prescription:`,
+      ``,
+      `Patient: ${patient.patientName}`,
+      `Age: ${patient.age || "—"}   Gender: ${patient.gender || "—"}`,
+      `Date: ${patient.visitDate}`,
+      ``,
+      `Prescription:`,
+      prescriptionText,
+      ``,
+      pharmacyNote ? `Note: ${pharmacyNote}\n` : ``,
+      `Regards,`,
+      `Dr. ${template.doctor_name}`,
+      template.department || ``,
+      template.hospital_name,
+      template.registration_number ? `Reg: ${template.registration_number}` : ``,
+    ].filter(Boolean).join("\n");
+    const mailto = `mailto:${encodeURIComponent(pharmacyEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+    setPharmacyOpen(false);
+    toast.success("Opening your mail app…");
+  };
+
   // Parse prescription lines into structured table
   const rxLines = prescriptionText.split(/[.\n]/).map(s => s.trim()).filter(Boolean);
   const parsedRows = parsePrescriptionLines(prescriptionText);
