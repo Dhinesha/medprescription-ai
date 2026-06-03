@@ -1,4 +1,4 @@
-import { Printer, Download, Save, Share2, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Printer, Download, Save, Share2, ArrowLeft, CheckCircle2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useRef, useState } from "react";
@@ -8,6 +8,7 @@ import type { HospitalTemplate, PatientInfo } from "@/types/medical";
 import { savePrescription } from "@/lib/api";
 import { parsePrescriptionLines } from "@/lib/prescriptionParser";
 import PrescriptionTable from "@/components/PrescriptionTable";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 interface PreviewStepProps {
   template: HospitalTemplate;
