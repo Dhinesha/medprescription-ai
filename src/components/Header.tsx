@@ -21,8 +21,9 @@ const ALL_TABS = [
 
 export default function Header({ activeTab, onTabChange }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, role, signOut } = useAuth();
   const navigate = useNavigate();
+  const tabs = ALL_TABS.filter(t => !role || (t.roles as readonly string[]).includes(role));
 
   const handleSignOut = async () => {
     await signOut();
