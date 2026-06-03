@@ -23,6 +23,9 @@ export default function PreviewStep({ template, patient, prescriptionText, onPre
   const previewRef = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [pharmacyOpen, setPharmacyOpen] = useState(false);
+  const [pharmacyEmail, setPharmacyEmail] = useState("");
+  const [pharmacyNote, setPharmacyNote] = useState("");
 
   const handlePDF = async () => {
     if (!previewRef.current) return;
