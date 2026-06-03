@@ -133,6 +133,36 @@ export default function AuthPage() {
                 </div>
               )}
 
+              {!isLogin && (
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">I am a</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setRole("doctor")}
+                      className={`flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium border transition ${
+                        role === "doctor"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-muted border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Stethoscope className="w-4 h-4" /> Doctor
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRole("patient")}
+                      className={`flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium border transition ${
+                        role === "patient"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-muted border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <HeartPulse className="w-4 h-4" /> Patient
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="text-sm font-medium text-foreground mb-1.5 block">Email</label>
                 <div className="relative">
