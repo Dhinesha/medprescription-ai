@@ -12,10 +12,13 @@ import PrescriptionScanner from "@/components/PrescriptionScanner";
 import MedAssistant from "@/components/MedAssistant";
 import ProductIdentifier from "@/components/ProductIdentifier";
 import { fetchTemplates, fetchPrescriptions } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 import type { HospitalTemplate, PatientInfo, WorkflowStep } from "@/types/medical";
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("workflow");
+  const { role } = useAuth();
+  const isDoctor = role === "doctor";
+  const [activeTab, setActiveTab] = useState<string>("workflow");
   const [step, setStep] = useState<WorkflowStep>("template");
   const [completedSteps, setCompletedSteps] = useState<WorkflowStep[]>([]);
 
@@ -50,9 +53,20 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    loadTemplates();
-    loadPrescriptions();
-  }, [loadTemplates, loadPrescriptions]);
+    if (role === "doctor") {
+      loadTemplates();
+      loadPrescriptions();
+    }
+  }, [role, loadTemplates, loadPrescriptions]);
+
+  useEffect(() => {
+    if (role === "patient" && ["workflow", "templates", "history"].includes(activeTab)) {
+      setActiveTab("scanner");
+    } else if (role === "doctor" && ["scanner", "product", "assistant"].includes(activeTab)) {
+      setActiveTab("workflow");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
 
   const goToStep = (newStep: WorkflowStep) => {
     setStep(newStep);

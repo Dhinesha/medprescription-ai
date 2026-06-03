@@ -1,4 +1,4 @@
-import { Printer, Download, Save, Share2, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Printer, Download, Save, Share2, ArrowLeft, CheckCircle2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useRef, useState } from "react";
@@ -8,6 +8,7 @@ import type { HospitalTemplate, PatientInfo } from "@/types/medical";
 import { savePrescription } from "@/lib/api";
 import { parsePrescriptionLines } from "@/lib/prescriptionParser";
 import PrescriptionTable from "@/components/PrescriptionTable";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 interface PreviewStepProps {
   template: HospitalTemplate;
@@ -22,6 +23,9 @@ export default function PreviewStep({ template, patient, prescriptionText, onPre
   const previewRef = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [pharmacyOpen, setPharmacyOpen] = useState(false);
+  const [pharmacyEmail, setPharmacyEmail] = useState("");
+  const [pharmacyNote, setPharmacyNote] = useState("");
 
   const handlePDF = async () => {
     if (!previewRef.current) return;
@@ -73,6 +77,37 @@ export default function PreviewStep({ template, patient, prescriptionText, onPre
     }
   };
 
+  const handleSendPharmacy = () => {
+    if (!pharmacyEmail.trim()) {
+      toast.error("Enter a pharmacy email");
+      return;
+    }
+    const subject = `Prescription for ${patient.patientName} - ${patient.visitDate}`;
+    const body = [
+      `Hello,`,
+      ``,
+      `Please dispense the following prescription:`,
+      ``,
+      `Patient: ${patient.patientName}`,
+      `Age: ${patient.age || "—"}   Gender: ${patient.gender || "—"}`,
+      `Date: ${patient.visitDate}`,
+      ``,
+      `Prescription:`,
+      prescriptionText,
+      ``,
+      pharmacyNote ? `Note: ${pharmacyNote}\n` : ``,
+      `Regards,`,
+      `Dr. ${template.doctor_name}`,
+      template.department || ``,
+      template.hospital_name,
+      template.registration_number ? `Reg: ${template.registration_number}` : ``,
+    ].filter(Boolean).join("\n");
+    const mailto = `mailto:${encodeURIComponent(pharmacyEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+    setPharmacyOpen(false);
+    toast.success("Opening your mail app…");
+  };
+
   // Parse prescription lines into structured table
   const rxLines = prescriptionText.split(/[.\n]/).map(s => s.trim()).filter(Boolean);
   const parsedRows = parsePrescriptionLines(prescriptionText);
@@ -84,6 +119,7 @@ export default function PreviewStep({ template, patient, prescriptionText, onPre
         <Button variant="outline" onClick={onBack}><ArrowLeft className="w-4 h-4 mr-1" /> Edit</Button>
         <div className="flex-1" />
         <Button variant="outline" onClick={handleShare}><Share2 className="w-4 h-4 mr-1" /> Share</Button>
+        <Button variant="outline" onClick={() => setPharmacyOpen(true)}><Mail className="w-4 h-4 mr-1" /> Pharmacy</Button>
         <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-1" /> Print</Button>
         <Button variant="outline" onClick={handlePDF}><Download className="w-4 h-4 mr-1" /> PDF</Button>
         <Button onClick={handleSave} disabled={saving || saved} className="bg-medical-teal text-primary-foreground">
@@ -168,6 +204,43 @@ export default function PreviewStep({ template, patient, prescriptionText, onPre
           </Button>
         </div>
       )}
+
+      <Dialog open={pharmacyOpen} onOpenChange={setPharmacyOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send to Pharmacy</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Pharmacy email</label>
+              <input
+                type="email"
+                value={pharmacyEmail}
+                onChange={e => setPharmacyEmail(e.target.value)}
+                placeholder="pharmacy@example.com"
+                className="w-full bg-muted rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Note (optional)</label>
+              <textarea
+                value={pharmacyNote}
+                onChange={e => setPharmacyNote(e.target.value)}
+                rows={3}
+                placeholder="Any special instructions for the pharmacist…"
+                className="w-full bg-muted rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring resize-none"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">This will open your email app with the prescription pre-filled.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPharmacyOpen(false)}>Cancel</Button>
+            <Button onClick={handleSendPharmacy} className="medical-gradient text-primary-foreground">
+              <Mail className="w-4 h-4 mr-1" /> Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

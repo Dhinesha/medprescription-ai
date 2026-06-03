@@ -1,17 +1,20 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Mail, Lock, User, ArrowRight, Stethoscope } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Stethoscope, HeartPulse } from "lucide-react";
 import { motion } from "framer-motion";
 import logoImg from "@/assets/medtemplate-logo.png";
+
+type Role = "doctor" | "patient";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<Role>("patient");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -29,7 +32,10 @@ export default function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: fullName } },
+          options: {
+            data: { full_name: fullName, role },
+            emailRedirectTo: `${window.location.origin}/`,
+          },
         });
         if (error) throw error;
         toast.success("Account created! Please check your email to verify your account.");
@@ -123,6 +129,36 @@ export default function AuthPage() {
                       required
                       className="w-full bg-muted rounded-xl pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-ring transition"
                     />
+                  </div>
+                </div>
+              )}
+
+              {!isLogin && (
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">I am a</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setRole("doctor")}
+                      className={`flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium border transition ${
+                        role === "doctor"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-muted border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Stethoscope className="w-4 h-4" /> Doctor
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRole("patient")}
+                      className={`flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium border transition ${
+                        role === "patient"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-muted border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <HeartPulse className="w-4 h-4" /> Patient
+                    </button>
                   </div>
                 </div>
               )}

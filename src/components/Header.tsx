@@ -10,19 +10,20 @@ interface HeaderProps {
   onTabChange: (tab: string) => void;
 }
 
-const tabs = [
-  { id: "workflow", label: "New Rx", icon: FileText },
-  { id: "templates", label: "Templates", icon: ClipboardList },
-  { id: "scanner", label: "Scan Rx", icon: ScanLine },
-  { id: "product", label: "Product ID", icon: Pill },
-  { id: "assistant", label: "MedAssist", icon: Bot },
-  { id: "history", label: "History", icon: History },
-];
+const ALL_TABS = [
+  { id: "workflow", label: "New Rx", icon: FileText, roles: ["doctor"] },
+  { id: "templates", label: "Templates", icon: ClipboardList, roles: ["doctor"] },
+  { id: "history", label: "History", icon: History, roles: ["doctor"] },
+  { id: "scanner", label: "Scan Rx", icon: ScanLine, roles: ["patient"] },
+  { id: "product", label: "Product ID", icon: Pill, roles: ["patient"] },
+  { id: "assistant", label: "MedAssist", icon: Bot, roles: ["patient"] },
+] as const;
 
 export default function Header({ activeTab, onTabChange }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, role, signOut } = useAuth();
   const navigate = useNavigate();
+  const tabs = ALL_TABS.filter(t => !role || (t.roles as readonly string[]).includes(role));
 
   const handleSignOut = async () => {
     await signOut();
