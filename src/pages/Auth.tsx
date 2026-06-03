@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Mail, Lock, User, ArrowRight, Stethoscope } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Stethoscope, HeartPulse } from "lucide-react";
 import { motion } from "framer-motion";
 import logoImg from "@/assets/medtemplate-logo.png";
+
+type Role = "doctor" | "patient";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
